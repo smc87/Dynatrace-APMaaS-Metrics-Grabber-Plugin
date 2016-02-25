@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<!-- plugin.xml file written by dynaTrace Client 5.5.0 -->
+<plugin>
+  <extension point="com.dynatrace.diagnostics.pdk.pluginconfig" id="com.compuware.APMaaS.scriptmetrics" name="APMaaS Script Metrics - Single Transactions">
+    <information>
+      <category value="" />
+      <description value="This plugin will return availablility and response time metrics for a single gomez test execution per run of the monitor." />
+      <supportlevel value="unsupported" />
+      <displayname value="APMaaS Script Metrics" />
+    </information>
+        <configuration>
+      <property key="scriptName" label="Script Name" type="string" description="Please enter the name of the script.  It's not case sensitive, but it's recommended to include the script's full name.&#xD;&#xA;&#xD;&#xA;Example: testweb.com - FF Agent" default="" multiline="false" />
+      <property key="gomezUserName" label="Username" type="string" description="Please enter a username for Gomez." default="" multiline="false" />
+      <property key="gomezPassword" label="Password" type="password" description="Please enter a password for Gomez." default="" />
+      <property key="debug" label="Debug" type="boolean" description="Turn on debugging if the script is failing.  The output can be found in the polling collector's log file." default="false" />
+      <property key="proxyOn" label="Proxy" type="boolean" description="If enabled, the configured HTTP proxy server will be used. If you enable this option, run the plugin on a dedicated collector." default="false" />
+      <property key="proxyHost" label="Proxy host" type="string" description="The hostname of the HTTP proxy server." default="" multiline="false">
+        <visibility>
+          <rule key="proxyOn" value="true" />
+        </visibility>
+      </property>
+      <property key="proxyPort" label="Proxy port" type="string" description="The port of the HTTP proxy server." default="8080">
+        <visibility>
+          <rule key="proxyOn" value="true" />
+        </visibility>
+      </property>
+      <property key="nonProxyHosts" label="Proxy exclusions" type="string" description="Indicates the hosts that should be accessed without going through the proxy. Typically this defines internal hosts. The value of this property is a list of hosts, separated by the '|' character. In addition the wildcard character '*' can be used for pattern matching" default="" multiline="false">
+        <visibility>
+          <rule key="proxyOn" value="true" />
+        </visibility>
+      </property>
+       <property key="proxyAuth" label="Proxy authorization" type="boolean" description="If the HTTP proxy server requires a username and a password for access, proxy authorization needs to be enabled." default="false">
+        <visibility>
+          <rule key="proxyOn" value="true" />
+        </visibility>
+      </property>
+      <property key="proxyUsername" label="Proxy username" type="string" description="The username that is used for authorization with the HTTP proxy server." default="" multiline="false">
+        <visibility>
+          <rule key="proxyAuth" value="true" />
+        </visibility>
+      </property>
+      <property key="proxyPassword" label="Proxy password" type="password" description="The password for the proxy username." default="">
+        <visibility>
+          <rule key="proxyAuth" value="true" />
+        </visibility>
+      </property>
+    </configuration>
+  </extension>
+  <extension point="com.dynatrace.diagnostics.pdk.monitor" id="com.compuware.APMaaS.scriptmetrics.monitor" name="APMaaS Script Metrics">
+    <plugin configid="com.compuware.APMaaS.scriptmetrics" class="com.compuware.APMaaSMetricsMonitor" />
+  </extension>
+  <extension point="com.dynatrace.diagnostics.pdk.monitormetricgroup" id="com.compuware.APMaaS.scriptmetrics.metricgroup1" name="Script Metrics">
+    <metricgroup monitorid="com.compuware.APMaaS.scriptmetrics.monitor">
+      <metric defaultrate="purepath" name="availability" unit="percent" description="The availability as reported in Gomez for the last run." />
+      <metric defaultrate="purepath" name="responseTime" unit="ms" description="The response time as reported in Gomez for the last run." />
+    </metricgroup>
+  </extension>
+</plugin>
+

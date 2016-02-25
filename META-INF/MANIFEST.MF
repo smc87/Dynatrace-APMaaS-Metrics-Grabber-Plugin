@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: APMaaS Script Metrics - Single Transactions
+Bundle-SymbolicName: com.compuware.APMaaS.scriptmetrics;singleton:=true
+Bundle-Version: 2.0.1
+Bundle-ClassPath: .,
+ lib/activation.jar,
+ lib/axis.jar,
+ lib/commons-discovery-0.2.jar,
+ lib/Gomez_Account_API_client_Winter_2013.jar,
+ lib/javax.wsdl_1.6.2.v201012040545.jar,
+ lib/jaxrpc.jar,
+ lib/mail.jar,
+ lib/org.apache.commons.logging_1.0.4.v201101211617.jar,
+ lib/saaj.jar
+Bundle-Vendor: Dynatrace
+Require-Bundle: com.dynatrace.diagnostics.sdk
+Ant-Version: Apache Ant 1.7.1
+Created-By: 24.60-b09 (Oracle Corporation)
+Implementation-Version: 2.0
+Built-By: cwat-dstadler
