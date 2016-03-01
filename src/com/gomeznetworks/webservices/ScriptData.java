@@ -224,10 +224,11 @@ public class ScriptData {
 	                
 	        
 			Iterator<TXTEST> transactions = responseData.getTXTEST().iterator();
-			while (transactions.hasNext()) {
+			while (transactions.hasNext()) {		
  				//There are transactions returned from gomez API's at this point.
 				//Only want to do age check if there are no new tranactions
 			TXTEST transaction = transactions.next();
+			
 			if (processedList.contains(transaction.getTtime())) {
 				//lets not process any transactions we have already done
 				if (debug) log.info("Skipped Trans: " + transaction.toString());
@@ -305,6 +306,7 @@ public class ScriptData {
 	}
 	
 private boolean processedRecently(File transactionFile) {
+	if (!gomezType.contains("PRIVATEPEER")) {
 	long dateDiff = new Date().getTime() - transactionFile.lastModified();
 	if (dateDiff >= 20*60*1000) {
 		//Last transaction processed over 15minutes ago
@@ -314,7 +316,9 @@ private boolean processedRecently(File transactionFile) {
 	if (debug) log.info("Some Transactions proccessed ok within the last 20minutes");
 	return true;	
 }
-
+//Wasn't a PP Transaction
+return true;
+}
 
 
 
