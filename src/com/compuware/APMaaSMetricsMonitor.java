@@ -63,9 +63,10 @@ public class APMaaSMetricsMonitor implements Monitor {
 		//Check/create for lockfile, pause until lockfile is gone
 		File lockFile = new File("connection.lock");
 		Random rand = new Random();
-		
+		log.info("Starting Collection Run");
+		log.info("Waiting For Connection");
 		while (lockFile.exists()) {
-			
+				
 			int sleepTime = 500 + rand.nextInt(1250);
 			long dateDiff = new Date().getTime() - lockFile.lastModified();
 			// 5*60*1000 = 5 minutes
@@ -77,7 +78,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 			Thread.sleep(sleepTime);
 		}
 		lockFile.createNewFile();
-		
+		log.info("Finished Waiting For Connection");
 
 		// Grab the values the user entered
 		String scriptName = env.getConfigString("scriptName");
@@ -173,6 +174,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 			}			
 			
 			lockFile.delete();
+			log.info("Completed Collection Run");
 			return new Status(Status.StatusCode.Success);
 		}
 		lockFile.delete();
