@@ -44,6 +44,7 @@ public class ScriptData {
 
 	//public variables
 	public double availability;
+	public double missingData;
 	public long responseTime;
 	public double dnsTime;
 	public double connectTime;
@@ -264,7 +265,7 @@ public class ScriptData {
 			//return availability issue if theres a problem
 	        if (!processedRecently(myFile)) {
 	        	if (debug) log.warning("no data was returned, and we have not processed a transaction in over 20 minutes");
-	        	availability = 0;
+	        	missingData = 1;	        	
 	        	return true;
 	        }
 			return false;

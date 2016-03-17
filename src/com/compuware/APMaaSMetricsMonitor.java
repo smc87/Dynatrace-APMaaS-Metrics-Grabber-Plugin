@@ -31,6 +31,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 	private static final String METRIC_GROUP = "Script Metrics";
 	private static final String MSR_AVAILABILITY = "availability";
 	private static final String MSR_RESPONSE_TIME = "responseTime";
+	private static final String MSR_MISSING_DATA = "missingData";
 
 	// Extra parameters that might be useful in a later release
 	public static final String gomezType = "BROWSERTX";
@@ -164,6 +165,13 @@ public class APMaaSMetricsMonitor implements Monitor {
 				for (MonitorMeasure measure : measures)
 					measure.setValue(script.responseTime);
 			}
+			
+			if ((measures = env.getMonitorMeasures(METRIC_GROUP, MSR_MISSING_DATA)) != null) {
+				if (debug) log.info("Processing missingData data");
+				for (MonitorMeasure measure : measures)
+					measure.setValue(script.missingData);
+			}			
+			
 			lockFile.delete();
 			return new Status(Status.StatusCode.Success);
 		}

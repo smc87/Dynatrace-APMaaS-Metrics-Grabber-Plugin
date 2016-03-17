@@ -54,6 +54,7 @@
     <metricgroup monitorid="com.compuware.APMaaS.scriptmetrics.monitor">
       <metric defaultrate="purepath" name="availability" unit="percent" description="The availability as reported in Gomez for the last run." />
       <metric defaultrate="purepath" name="responseTime" unit="ms" description="The response time as reported in Gomez for the last run." />
+      <metric defaultrate="purepath" name="missingData" unit="number" description="If 1 is returned PLM data is not being found. - Possible that PLM clients are offline" />
     </metricgroup>
   </extension>
 </plugin>
