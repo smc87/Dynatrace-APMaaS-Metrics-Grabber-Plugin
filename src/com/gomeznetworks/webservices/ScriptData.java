@@ -268,7 +268,7 @@ public class ScriptData {
 	        	missingData = 1;	        	
 	        	return true;
 	        }
-			return false;
+			return false; //no data - return false and wait for next update
 
 			
 		} catch (AxisFault e) {
