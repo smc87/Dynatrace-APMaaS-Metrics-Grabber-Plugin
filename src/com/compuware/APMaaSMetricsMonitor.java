@@ -154,6 +154,8 @@ public class APMaaSMetricsMonitor implements Monitor {
 			if (debug) log.info ("We got summary data from Gomez");
 			//We got summary data back!  Now to assign the values to a measure.
 			Collection<MonitorMeasure> measures;
+		
+			if (script.missingData != 1) {
 			if ((measures = env.getMonitorMeasures(METRIC_GROUP, MSR_AVAILABILITY)) != null) {
 				if (debug) log.info("Processing AVAILABILITY data");
 				for (MonitorMeasure measure : measures)
@@ -165,13 +167,14 @@ public class APMaaSMetricsMonitor implements Monitor {
 				if (debug) log.info("Processing ResponseTime data");
 				for (MonitorMeasure measure : measures)
 					measure.setValue(script.responseTime);
+			}						
+			} else {
+				if ((measures = env.getMonitorMeasures(METRIC_GROUP, MSR_MISSING_DATA)) != null) {
+					if (debug) log.info("Processing missingData data");
+					for (MonitorMeasure measure : measures)
+						measure.setValue(script.missingData);
+				}	
 			}
-			
-			if ((measures = env.getMonitorMeasures(METRIC_GROUP, MSR_MISSING_DATA)) != null) {
-				if (debug) log.info("Processing missingData data");
-				for (MonitorMeasure measure : measures)
-					measure.setValue(script.missingData);
-			}			
 			
 			lockFile.delete();
 			log.info("Completed Collection Run");
