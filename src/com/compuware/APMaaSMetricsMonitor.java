@@ -83,6 +83,21 @@ public class APMaaSMetricsMonitor implements Monitor {
 			Thread.sleep(sleepTime);
 		}
 		//FIXME - Convert to fileLocks
+		//Small extra randomisation to try and make sure we ar ethe only one with a lock
+		int sleepyTime = 5 + rand.nextInt(100);
+		Thread.sleep(sleepyTime);
+		while (lockFile.exists()) {
+			
+			int sleepTime = 500 + rand.nextInt(1250);
+			long dateDiff = new Date().getTime() - lockFile.lastModified();
+			// 5*60*1000 = 5 minutes
+			if (dateDiff >= 5*60*1000) {
+				lockFile.delete();
+				log.warning("Deleted old lockFile - 5 minutes old!");
+			}
+			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
+			Thread.sleep(sleepTime);
+		}
 		lockFile.createNewFile();
 		log.info("Finished Waiting For Lock File");
 		
