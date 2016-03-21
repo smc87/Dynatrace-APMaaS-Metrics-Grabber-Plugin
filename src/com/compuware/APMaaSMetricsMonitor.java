@@ -57,14 +57,19 @@ public class APMaaSMetricsMonitor implements Monitor {
 	public Status execute(MonitorEnvironment env) throws Exception {
 		// The plugin starts here
 		
+		// Grab the values the user entered
+		String scriptName = env.getConfigString("scriptName");
+		String gomezUserName = env.getConfigString("gomezUserName");
+		String gomezPassword = env.getConfigPassword("gomezPassword");
+
+		
 		
 		boolean debug = env.getConfigBoolean("debug");
 		
 		//Check/create for lockfile, pause until lockfile is gone
 		File lockFile = new File("connection.lock");
 		Random rand = new Random();
-		log.info("Starting Collection Run");
-		log.info("Waiting For Connection");
+		log.info("Waiting For Lock File...");
 		while (lockFile.exists()) {
 				
 			int sleepTime = 500 + rand.nextInt(1250);
@@ -77,13 +82,25 @@ public class APMaaSMetricsMonitor implements Monitor {
 			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
 			Thread.sleep(sleepTime);
 		}
+		//FIXME - Convert to fileLocks
+		//Small extra randomisation to try and make sure we ar ethe only one with a lock
+		int sleepyTime = 5 + rand.nextInt(100);
+		Thread.sleep(sleepyTime);
+		while (lockFile.exists()) {
+			
+			int sleepTime = 500 + rand.nextInt(1250);
+			long dateDiff = new Date().getTime() - lockFile.lastModified();
+			// 5*60*1000 = 5 minutes
+			if (dateDiff >= 5*60*1000) {
+				lockFile.delete();
+				log.warning("Deleted old lockFile - 5 minutes old!");
+			}
+			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
+			Thread.sleep(sleepTime);
+		}
 		lockFile.createNewFile();
-		log.info("Finished Waiting For Connection");
-
-		// Grab the values the user entered
-		String scriptName = env.getConfigString("scriptName");
-		String gomezUserName = env.getConfigString("gomezUserName");
-		String gomezPassword = env.getConfigPassword("gomezPassword");
+		log.info("Finished Waiting For Lock File");
+		
 
 		
 		
@@ -181,6 +198,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 			return new Status(Status.StatusCode.Success);
 		}
 		lockFile.delete();
+		log.info("Completed Collection Run - No Data");
 		return new Status(Status.StatusCode.ErrorInternal, "Possible Normal Failure - We fail when there is no new data to avoid a data point being created. Enable debug for verbose logs.");
 	}
 
