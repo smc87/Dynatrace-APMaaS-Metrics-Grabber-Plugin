@@ -84,7 +84,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 	        	        
 			
 			
-			int sleepTime = 500 + rand2.nextInt(1250);
+			int sleepTime = 300 + rand2.nextInt(1050);
 			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
 			Thread.sleep(sleepTime);
 			long dateDiff = new Date().getTime() - lockFile.lastModified();
@@ -103,7 +103,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 		Thread.sleep(sleepyTime);
 		while (lockFile.exists()) {
 			
-			int sleepTime = 500 + rand.nextInt(1250);
+			int sleepTime = 150 + rand.nextInt(950);
 			long dateDiff = new Date().getTime() - lockFile.lastModified();
 			// 5*60*1000 = 5 minutes
 			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
