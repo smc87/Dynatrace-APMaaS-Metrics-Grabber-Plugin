@@ -81,12 +81,6 @@ public class APMaaSMetricsMonitor implements Monitor {
 		Random rand2 = new Random();
 		while (lockFile.exists()) {
 			
-	        	        
-			
-			
-			int sleepTime = 300 + rand2.nextInt(1050);
-			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
-			Thread.sleep(sleepTime);
 			long dateDiff = new Date().getTime() - lockFile.lastModified();
 			// 5*60*1000 = 5 minutes
 			if (lockFile.lastModified() < 1) {
@@ -99,6 +93,9 @@ public class APMaaSMetricsMonitor implements Monitor {
 				log.warning("current time: " + new Date().getTime());
 				log.warning("datediff: " + dateDiff);
 			}
+			int sleepTime = 300 + rand2.nextInt(1050);
+			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
+			Thread.sleep(sleepTime);
 		}
 		//FIXME - Convert to fileLocks
 		//Small extra randomisation to try and make sure we ar ethe only one with a lock
@@ -106,9 +103,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 		Thread.sleep(sleepyTime);
 		while (lockFile.exists()) {
 			
-			int sleepTime = 150 + rand.nextInt(950);
-			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
-			Thread.sleep(sleepTime);
+			
 			long dateDiff = new Date().getTime() - lockFile.lastModified();
 			if (lockFile.lastModified() < 1) {
 				dateDiff = 1;
@@ -120,6 +115,9 @@ public class APMaaSMetricsMonitor implements Monitor {
 				log.warning("2nd check current time: " + new Date().getTime());
 				log.warning("2nd check datediff: " + dateDiff);
 			}
+			int sleepTime = 150 + rand.nextInt(950);
+			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
+			Thread.sleep(sleepTime);
 		}
 		lockFile.createNewFile();
 		log.info("Finished Waiting For Lock File");
