@@ -89,6 +89,9 @@ public class APMaaSMetricsMonitor implements Monitor {
 			Thread.sleep(sleepTime);
 			long dateDiff = new Date().getTime() - lockFile.lastModified();
 			// 5*60*1000 = 5 minutes
+			if (lockFile.lastModified() < 1) {
+				dateDiff = 1;
+			}
 			if (dateDiff >= 5*60*1000) {
 				lockFile.delete();
 				log.warning("Deleted old lockFile - 5 minutes old!");
@@ -104,10 +107,12 @@ public class APMaaSMetricsMonitor implements Monitor {
 		while (lockFile.exists()) {
 			
 			int sleepTime = 150 + rand.nextInt(950);
-			long dateDiff = new Date().getTime() - lockFile.lastModified();
-			// 5*60*1000 = 5 minutes
 			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
 			Thread.sleep(sleepTime);
+			long dateDiff = new Date().getTime() - lockFile.lastModified();
+			if (lockFile.lastModified() < 1) {
+				dateDiff = 1;
+			}
 			if (dateDiff >= 5*60*1000) {
 				lockFile.delete();
 				log.warning("2nd check Deleted old lockFile - 5 minutes old!");
