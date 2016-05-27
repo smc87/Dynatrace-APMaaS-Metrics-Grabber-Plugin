@@ -7,9 +7,13 @@
 
 package com.compuware;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Random;
@@ -66,37 +70,51 @@ public class APMaaSMetricsMonitor implements Monitor {
 		
 		boolean debug = env.getConfigBoolean("debug");
 		
+		
+		
+		
 		//Check/create for lockfile, pause until lockfile is gone
 		File lockFile = new File("connection.lock");
 		Random rand = new Random();
 		log.info("Waiting For Lock File...");
+		//increase randomness
+		Random rand2 = new Random();
 		while (lockFile.exists()) {
-				
-			int sleepTime = 500 + rand.nextInt(1250);
+			
+	        	        
+			
+			
+			int sleepTime = 500 + rand2.nextInt(1250);
+			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
+			Thread.sleep(sleepTime);
 			long dateDiff = new Date().getTime() - lockFile.lastModified();
 			// 5*60*1000 = 5 minutes
 			if (dateDiff >= 5*60*1000) {
 				lockFile.delete();
 				log.warning("Deleted old lockFile - 5 minutes old!");
+				log.warning("lockfile modified at: " + lockFile.lastModified());
+				log.warning("current time: " + new Date().getTime());
+				log.warning("datediff: " + dateDiff);
 			}
-			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
-			Thread.sleep(sleepTime);
 		}
 		//FIXME - Convert to fileLocks
 		//Small extra randomisation to try and make sure we ar ethe only one with a lock
-		int sleepyTime = 5 + rand.nextInt(100);
+		int sleepyTime = 5 + rand.nextInt(300);
 		Thread.sleep(sleepyTime);
 		while (lockFile.exists()) {
 			
 			int sleepTime = 500 + rand.nextInt(1250);
 			long dateDiff = new Date().getTime() - lockFile.lastModified();
 			// 5*60*1000 = 5 minutes
-			if (dateDiff >= 5*60*1000) {
-				lockFile.delete();
-				log.warning("Deleted old lockFile - 5 minutes old!");
-			}
 			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
 			Thread.sleep(sleepTime);
+			if (dateDiff >= 5*60*1000) {
+				lockFile.delete();
+				log.warning("2nd check Deleted old lockFile - 5 minutes old!");
+				log.warning("2nd check lockfile modified at: " + lockFile.lastModified());
+				log.warning("2nd check current time: " + new Date().getTime());
+				log.warning("2nd check datediff: " + dateDiff);
+			}
 		}
 		lockFile.createNewFile();
 		log.info("Finished Waiting For Lock File");
