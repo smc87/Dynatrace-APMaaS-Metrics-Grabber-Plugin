@@ -9,8 +9,10 @@ package com.compuware;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.ArrayList;
@@ -216,7 +218,24 @@ public class APMaaSMetricsMonitor implements Monitor {
 			log.info("Completed Collection Run");
 			return new Status(Status.StatusCode.Success);
 		}
-		lockFile.delete();
+		//make sure we have the right transaction to delete the lock file.
+		try {
+			BufferedReader	readIn = new BufferedReader(new FileReader("connection.lock"));
+			String str;
+			String lockedScriptName = null;
+			str = readIn.readLine();
+			lockedScriptName = str;
+			readIn.close();
+			log.info("Locked Script Name: " + lockedScriptName);
+			if (lockedScriptName == scriptName) {
+				lockFile.delete();
+			}
+		} catch (FileNotFoundException e2) {
+			if (debug) log.warning("No lock file found");	
+		} catch (IOException e1) {
+			if (debug) log.warning("No lock file found");
+		}
+		
 		log.info("Completed Collection Run - No Data");
 		return new Status(Status.StatusCode.ErrorInternal, "Possible Normal Failure - We fail when there is no new data to avoid a data point being created. Enable debug for verbose logs.");
 	}
