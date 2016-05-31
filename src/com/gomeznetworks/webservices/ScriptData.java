@@ -117,8 +117,8 @@ public class ScriptData {
 					if (sessionObject.getStatus().getSErrorMessage().contains("Max number of concurrent sessions exceeded")) {
 						
 						//sleep
-						int sleepTime = 500 + rand.nextInt(3500);
-						if (debug) log.info("Sleeping for " + sleepTime + " milliseconds");
+						int sleepTime = 200 + rand.nextInt(550);
+						log.info("Got max Sessions Error. Sleeping for " + sleepTime + " milliseconds");
 						Thread.sleep(sleepTime);
 					
 						//Gets the sessionToken

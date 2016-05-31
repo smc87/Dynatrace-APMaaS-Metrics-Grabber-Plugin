@@ -83,33 +83,33 @@ public class APMaaSMetricsMonitor implements Monitor {
 			
 			long dateDiff = new Date().getTime() - lockFile.lastModified();
 			// 5*60*1000 = 5 minutes
-			if (dateDiff >= 5*60*1000 && dateDiff != new Date().getTime()) {
+			if (dateDiff >= 5*60*1000 && dateDiff <= 10*60*1000) {
 				lockFile.delete();
 				log.warning("Deleted old lockFile - 5 minutes old!");
 				log.warning("lockfile modified at: " + lockFile.lastModified());
 				log.warning("current time: " + new Date().getTime());
 				log.warning("datediff: " + dateDiff);
 			}
-			int sleepTime = 300 + rand2.nextInt(1050);
+			int sleepTime = 100 + rand2.nextInt(950);
 			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
 			Thread.sleep(sleepTime);
 		}
 		//FIXME - Convert to fileLocks
 		//Small extra randomisation to try and make sure we ar ethe only one with a lock
-		int sleepyTime = 5 + rand.nextInt(300);
+		int sleepyTime = 5 + rand.nextInt(150);
 		Thread.sleep(sleepyTime);
 		while (lockFile.exists()) {
 			
 			
 			long dateDiff = new Date().getTime() - lockFile.lastModified();
-			if (dateDiff >= 5*60*1000 && dateDiff != new Date().getTime()) {
+			if (dateDiff >= 5*60*1000 && dateDiff <= 10*60*1000) {
 				lockFile.delete();
 				log.warning("2nd check Deleted old lockFile - 5 minutes old!");
 				log.warning("2nd check lockfile modified at: " + lockFile.lastModified());
 				log.warning("2nd check current time: " + new Date().getTime());
 				log.warning("2nd check datediff: " + dateDiff);
 			}
-			int sleepTime = 150 + rand.nextInt(950);
+			int sleepTime = 100 + rand.nextInt(950);
 			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
 			Thread.sleep(sleepTime);
 		}
