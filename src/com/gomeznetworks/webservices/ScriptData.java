@@ -151,13 +151,13 @@ public class ScriptData {
 				
 				
 				//We always want to show these messages
-				log.warning("Failed to open data feed: " + sessionObject.getStatus().getEStatus().getValue());
-				log.warning("Failed to open data feed: " + sessionObject.getStatus().getSErrorMessage());
+				log.warning("Failed to open data feed (successobject not True): " + sessionObject.getStatus().getEStatus().getValue());
+				log.warning("Failed to open data feed (successobject not True): " + sessionObject.getStatus().getSErrorMessage());
 				//Try to close the connection anyway
 				//FIXME - Seems around here that sessions are always double generated
 				String sessionToken = sessionObject.getSessionToken();
 				soapProxy.closeDataFeed(sessionToken);
-				log.warning("Attempted to close session: " + sessionToken);
+				log.warning("Attempted to close session (successobject not True): " + sessionToken);
 				return sessionObjectSuccess;
 			}
 			
@@ -168,16 +168,16 @@ public class ScriptData {
 			//save session info to lock file
 			File myLockFile = new File("connection.lock");
 			FileWriter lockWriter = new FileWriter(myLockFile); 
-			lockWriter.write(sessionToken);
+			lockWriter.append(sessionToken);
 			lockWriter.close();
 			//Assign the actual response to the empty response container object.
 			response = soapProxy.getResponseData(sessionToken);
 			
 			if (response.getStatus().getEStatus().getValue() != "STATUS_SUCCESS"){
-				log.warning("Failed to get response data: " + response.getStatus().getEStatus().getValue());
-				log.warning("Failed to get response data: " + response.getStatus().getSErrorMessage());
+				log.warning("Failed to get response data (Estatus was not STATUS_SUCCESS): " + response.getStatus().getEStatus().getValue());
+				log.warning("Failed to get response data (Estatus was not STATUS_SUCCESS): " + response.getStatus().getSErrorMessage());
 				//close stray session
-				log.warning("Attempted to close stray session: " + sessionToken);
+				log.warning("Attempted to close stray session (Estatus was not STATUS_SUCCESS): " + sessionToken);
 				soapProxy.closeDataFeed(sessionToken);
 				return false;
 			} 

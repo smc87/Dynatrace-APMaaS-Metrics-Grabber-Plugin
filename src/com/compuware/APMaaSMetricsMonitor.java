@@ -114,6 +114,10 @@ public class APMaaSMetricsMonitor implements Monitor {
 			Thread.sleep(sleepTime);
 		}
 		lockFile.createNewFile();
+		//add script ID to lockfile. then check lockfile before calling out from scriptdata.java 
+		FileWriter lockWriter = new FileWriter(lockFile);
+		lockWriter.write(scriptName);
+		lockWriter.close();
 		log.info("Finished Waiting For Lock File");
 		
 
