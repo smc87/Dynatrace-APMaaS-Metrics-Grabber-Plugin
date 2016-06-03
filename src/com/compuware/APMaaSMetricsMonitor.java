@@ -84,8 +84,8 @@ public class APMaaSMetricsMonitor implements Monitor {
 		while (lockFile.exists()) {
 			
 			long dateDiff = new Date().getTime() - lockFile.lastModified();
-			// 5*60*1000 = 5 minutes
-			if (dateDiff >= 5*60*1000 && dateDiff <= 300*60*1000) {
+			// 2*60*1000 = 2 minutes
+			if (dateDiff >= 2*60*1000 && dateDiff <= 300*60*1000) {
 				lockFile.delete();
 				log.warning("Deleted old lockFile - 5 minutes old!");
 				log.warning("lockfile modified at: " + lockFile.lastModified());
@@ -104,7 +104,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 			
 			
 			long dateDiff = new Date().getTime() - lockFile.lastModified();
-			if (dateDiff >= 5*60*1000 && dateDiff <= 300*60*1000) {
+			if (dateDiff >= 2*60*1000 && dateDiff <= 300*60*1000) {
 				lockFile.delete();
 				log.warning("2nd check Deleted old lockFile - 5 minutes old!");
 				log.warning("2nd check lockfile modified at: " + lockFile.lastModified());
