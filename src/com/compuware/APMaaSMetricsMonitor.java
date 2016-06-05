@@ -69,13 +69,14 @@ public class APMaaSMetricsMonitor implements Monitor {
 		String gomezPassword = env.getConfigPassword("gomezPassword");
 
 		
-		
 		boolean debug = env.getConfigBoolean("debug");
 		
 		
 		
 		
 		//Check/create for lockfile, pause until lockfile is gone
+		
+		//FIX ME - STarting lockfile management here
 		File lockFile = new File("connection.lock");
 		Random rand = new Random();
 		log.info("Waiting For Lock File...");
@@ -171,7 +172,9 @@ public class APMaaSMetricsMonitor implements Monitor {
 
 			if (! manage.createConfigXml()){
 				if (debug) log.info("an error has occured");
+				if (isMyLock(scriptName)) {
 				lockFile.delete();
+				}
 				return new Status(Status.StatusCode.ErrorInternal, "An Error Occurred. Could not create XML File " + f);
 			}
 
@@ -213,35 +216,41 @@ public class APMaaSMetricsMonitor implements Monitor {
 						measure.setValue(script.missingData);
 				}	
 			}
-			
+			if (isMyLock(scriptName)) {
 			lockFile.delete();
+			}
 			log.info("Completed Collection Run");
 			return new Status(Status.StatusCode.Success);
 		}
 		//make sure we have the right transaction to delete the lock file.
-		try {
-			BufferedReader	readIn = new BufferedReader(new FileReader("connection.lock"));
-			String str;
-			String lockedScriptName = null;
-			str = readIn.readLine();
-			lockedScriptName = str;
-			readIn.close();
-			log.info("Locked Script Name: " + lockedScriptName);
-			if (lockedScriptName == scriptName) {
-				lockFile.delete();
-			}
-		} catch (FileNotFoundException e2) {
-			if (debug) log.warning("No lock file found");	
-		} catch (IOException e1) {
-			if (debug) log.warning("No lock file found");
+		if (isMyLock(scriptName)) {
+			lockFile.delete();
 		}
 		
 		log.info("Completed Collection Run - No Data");
 		return new Status(Status.StatusCode.ErrorInternal, "Possible Normal Failure - We fail when there is no new data to avoid a data point being created. Enable debug for verbose logs.");
 	}
 
-	 @Override
+
+
+	@Override
 	public void teardown(MonitorEnvironment env) throws Exception {
 		// empty
 	}
+	
+	private boolean isMyLock(String scriptName) throws IOException {
+		BufferedReader	readIn = new BufferedReader(new FileReader("connection.lock"));
+		String str;
+		String lockedScriptName = null;
+		str = readIn.readLine();
+		lockedScriptName = str;
+		readIn.close();
+		log.fine("Locked Script Name: " + lockedScriptName);
+		if (lockedScriptName == scriptName) {
+			return true;
+		} else {
+		return false;
+		}
+	}
+	
 }

@@ -167,7 +167,8 @@ public class ScriptData {
 			if (debug) log.info(sessionToken);
 			//save session info to lock file
 			File myLockFile = new File("connection.lock");
-			FileWriter lockWriter = new FileWriter(myLockFile); 
+			FileWriter lockWriter = new FileWriter(myLockFile, true); 
+			lockWriter.append("\r\n");
 			lockWriter.append(sessionToken);
 			lockWriter.close();
 			//Assign the actual response to the empty response container object.
