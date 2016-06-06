@@ -75,8 +75,6 @@ public class APMaaSMetricsMonitor implements Monitor {
 		
 		
 		//Check/create for lockfile, pause until lockfile is gone
-		
-		//FIX ME - STarting lockfile management here
 		File lockFile = new File("connection.lock");
 		Random rand = new Random();
 		log.info("Waiting For Lock File...");
@@ -173,7 +171,8 @@ public class APMaaSMetricsMonitor implements Monitor {
 			if (! manage.createConfigXml()){
 				if (debug) log.info("an error has occured");
 				if (isMyLock(scriptName)) {
-				lockFile.delete();
+					if (debug) log.info("Its My Lock");
+					lockFile.delete();
 				}
 				return new Status(Status.StatusCode.ErrorInternal, "An Error Occurred. Could not create XML File " + f);
 			}
@@ -217,13 +216,15 @@ public class APMaaSMetricsMonitor implements Monitor {
 				}	
 			}
 			if (isMyLock(scriptName)) {
-			lockFile.delete();
+				if (debug) log.info("Its My Lock");
+				lockFile.delete();
 			}
 			log.info("Completed Collection Run");
 			return new Status(Status.StatusCode.Success);
 		}
 		//make sure we have the right transaction to delete the lock file.
 		if (isMyLock(scriptName)) {
+			if (debug) log.info("Its My Lock");
 			lockFile.delete();
 		}
 		
@@ -245,10 +246,13 @@ public class APMaaSMetricsMonitor implements Monitor {
 		str = readIn.readLine();
 		lockedScriptName = str;
 		readIn.close();
+		log.fine("Calling Script Name: " + scriptName);
 		log.fine("Locked Script Name: " + lockedScriptName);
-		if (lockedScriptName == scriptName) {
+		if (lockedScriptName.equals(scriptName)) {
+		log.fine("MyLock is: True");
 			return true;
 		} else {
+		log.fine("MyLock is: False");
 		return false;
 		}
 	}
