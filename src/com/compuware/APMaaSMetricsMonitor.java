@@ -173,6 +173,8 @@ public class APMaaSMetricsMonitor implements Monitor {
 				if (isMyLock(scriptName)) {
 					if (debug) log.info("Its My Lock");
 					lockFile.delete();
+				} else {
+					log.warning("Attempted lockfile deletion - NOT MY LOCK");
 				}
 				return new Status(Status.StatusCode.ErrorInternal, "An Error Occurred. Could not create XML File " + f);
 			}
@@ -218,6 +220,8 @@ public class APMaaSMetricsMonitor implements Monitor {
 			if (isMyLock(scriptName)) {
 				if (debug) log.info("Its My Lock");
 				lockFile.delete();
+			} else {
+				log.warning("Attempted lockfile deletion - NOT MY LOCK");
 			}
 			log.info("Completed Collection Run");
 			return new Status(Status.StatusCode.Success);
@@ -226,6 +230,8 @@ public class APMaaSMetricsMonitor implements Monitor {
 		if (isMyLock(scriptName)) {
 			if (debug) log.info("Its My Lock");
 			lockFile.delete();
+		} else {
+			log.warning("Attempted lockfile deletion - NOT MY LOCK");
 		}
 		
 		log.info("Completed Collection Run - No Data");
