@@ -13,4 +13,3 @@ The plugin uses the APMaaS WSDL Interface to query the following metrics:
 
 
 Find further information in the [dynaTrace community]
-
