@@ -113,6 +113,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
 			Thread.sleep(sleepTime);
 		}
+		//if (!lockFile.exists()) {
 		lockFile.createNewFile();
 		//add script ID to lockfile. then check lockfile before calling out from scriptdata.java 
 		FileWriter lockWriter = new FileWriter(lockFile, false);
@@ -123,6 +124,9 @@ public class APMaaSMetricsMonitor implements Monitor {
 		}
 		lockWriter.write(scriptName);
 		lockWriter.close();
+	/*	} else {
+			return new Status(Status.StatusCode.ErrorInternal, "unexpected lockFile Existed");
+		} */
 		log.info("Finished Waiting For Lock File");
 		
 
@@ -191,7 +195,11 @@ public class APMaaSMetricsMonitor implements Monitor {
 	
 		
 		}
-
+		
+		if (!isMyLock(scriptName)) {
+			return new Status(Status.StatusCode.ErrorInternal, "Exit to prevent duplicate session.");
+		}
+		
 		//creating a script object
 		ScriptData script = new ScriptData(scriptName, gomezUserName, gomezPassword, gomezGroup, gomezOrder, debug);
 		if (debug) log.info("Script created correctly");
