@@ -9,6 +9,7 @@ package com.compuware;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -196,7 +197,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 		
 		}
 		
-		if (!isMyLock(scriptName)) {
+		if (!(isMyLock(scriptName))) {
 			return new Status(Status.StatusCode.ErrorInternal, "Exit to prevent duplicate session.");
 		}
 		
