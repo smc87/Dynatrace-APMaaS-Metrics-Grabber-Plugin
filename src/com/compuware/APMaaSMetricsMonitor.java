@@ -13,6 +13,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.ArrayList;
@@ -116,7 +118,12 @@ public class APMaaSMetricsMonitor implements Monitor {
 		}
 		lockFile.createNewFile();
 		//add script ID to lockfile. then check lockfile before calling out from scriptdata.java 
-		FileWriter lockWriter = new FileWriter(lockFile);
+		FileWriter lockWriter = new FileWriter(lockFile, false);
+		if (lockFile.exists()) {
+		    RandomAccessFile raf = new RandomAccessFile(lockFile, "rw");
+		    raf.setLength(0);
+		    raf.close();
+		}
 		lockWriter.write(scriptName);
 		lockWriter.close();
 		log.info("Finished Waiting For Lock File");
@@ -252,13 +259,13 @@ public class APMaaSMetricsMonitor implements Monitor {
 		str = readIn.readLine();
 		lockedScriptName = str;
 		readIn.close();
-		log.fine("Calling Script Name: " + scriptName);
-		log.fine("Locked Script Name: " + lockedScriptName);
+		log.info("Calling Script Name: " + scriptName);
+		log.info("Locked Script Name: " + lockedScriptName);
 		if (lockedScriptName.equals(scriptName)) {
-		log.fine("MyLock is: True");
+		log.info("MyLock is: True");
 			return true;
 		} else {
-		log.fine("MyLock is: False");
+		log.info("MyLock is: False");
 		return false;
 		}
 	}
