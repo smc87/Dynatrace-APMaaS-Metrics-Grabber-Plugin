@@ -114,19 +114,22 @@ public class APMaaSMetricsMonitor implements Monitor {
 			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
 			Thread.sleep(sleepTime);
 		}
-		if (!lockFile.exists()) {
+		if (!(lockFile.exists())) {
 		lockFile.createNewFile();
 		//add script ID to lockfile. then check lockfile before calling out from scriptdata.java 
-		FileWriter lockWriter = new FileWriter(lockFile, false);
+		FileWriter lockWriter = new FileWriter(lockFile, true);
+		/* Remove this in favour of \r\n and only reading the first line with isMyLock()
 		if (lockFile.exists()) {
 			
 		    RandomAccessFile raf = new RandomAccessFile(lockFile, "rw");
 		    raf.setLength(0);
 		    raf.close();
 		}
-		lockWriter.write(scriptName);		
+		*/
+		lockWriter.write(scriptName+"\r\n");		
 		lockWriter.close();
 		} else {
+			log.warning("Unexpected log file - exited");
 			return new Status(Status.StatusCode.ErrorInternal, "unexpected lockFile Existed");
 		}
 		log.info("Finished Waiting For Lock File");
