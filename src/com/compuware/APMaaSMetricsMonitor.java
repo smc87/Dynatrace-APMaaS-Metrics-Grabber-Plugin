@@ -97,7 +97,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 		}
 		//FIXME - Convert to fileLocks
 		//Small extra randomisation to try and make sure we are the only one with a lock
-		int sleepyTime = 5 + rand.nextInt(150);
+		int sleepyTime = 5 + rand.nextInt(450);
 		Thread.sleep(sleepyTime);
 		while (lockFile.exists()) {
 			
