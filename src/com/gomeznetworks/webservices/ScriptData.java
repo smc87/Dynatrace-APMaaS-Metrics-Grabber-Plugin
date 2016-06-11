@@ -294,6 +294,7 @@ public class ScriptData {
 			sessiontoken = str;
 			}
 			in.close();
+			//FIX ME - this doesnt always close the session!
 			log.info("Attempting to close stray session: " + sessiontoken);
 			soapProxy.closeDataFeed(sessiontoken);
 		} catch (FileNotFoundException e2) {
