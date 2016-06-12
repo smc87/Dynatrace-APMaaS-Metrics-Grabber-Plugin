@@ -298,12 +298,13 @@ public class ScriptData {
 			GpnDataExportServiceSoapProxy soapProxy = new GpnDataExportServiceSoapProxy();
 			COpStatusData sessionObject = soapProxy.closeDataFeed(sessiontoken);
 			int failCount = 0;
-			while (sessionObject.getEStatus().getValue() != "STATUS_SUCCESS" && failCount < 3){
+			while (sessionObject.getEStatus().getValue() != "STATUS_SUCCESS" && failCount < 7){
 				log.warning("Closing Stray Session Failed");
+				log.warning(sessionObject.getEStatus().toString());
 				log.warning(sessionObject.getEStatus().getValue());
 				try {
-					log.warning("Sleep 30sec to try and avoid slow network response");
-					Thread.sleep(30000);
+					log.warning("Sleep 10sec to try and avoid slow network response");
+					Thread.sleep(10000);
 					log.warning("Attempting to close session again");
 					sessionObject = soapProxy.closeDataFeed(sessiontoken);
 				} catch (InterruptedException e) {
