@@ -298,6 +298,9 @@ public class ScriptData {
 			GpnDataExportServiceSoapProxy soapProxy = new GpnDataExportServiceSoapProxy();
 			COpStatusData sessionObject = soapProxy.closeDataFeed(sessiontoken);
 			int failCount = 0;
+			if (sessiontoken.contains(" ")) {
+			failCount = 7;
+			}
 			while (sessionObject.getEStatus().getValue() != "STATUS_SUCCESS" && failCount < 7){
 				log.warning("Closing Stray Session Failed");
 				log.warning(sessionObject.getEStatus().toString());
