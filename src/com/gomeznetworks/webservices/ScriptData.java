@@ -297,7 +297,8 @@ public class ScriptData {
 			log.info("Attempting to close stray session: " + sessiontoken);
 			GpnDataExportServiceSoapProxy soapProxy = new GpnDataExportServiceSoapProxy();
 			COpStatusData sessionObject = soapProxy.closeDataFeed(sessiontoken);
-			while (sessionObject.getEStatus().getValue() != "STATUS_SUCCESS"){
+			int failCount = 0;
+			while (sessionObject.getEStatus().getValue() != "STATUS_SUCCESS" && failCount < 3){
 				log.warning("Closing Stray Session Failed");
 				log.warning(sessionObject.getEStatus().getValue());
 				try {
@@ -309,6 +310,7 @@ public class ScriptData {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				failCount++;
 			}
 		} catch (FileNotFoundException e2) {
 		
