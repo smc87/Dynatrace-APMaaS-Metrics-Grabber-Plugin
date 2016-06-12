@@ -285,7 +285,6 @@ public class ScriptData {
 		}
 		//FIXME - Hopefully this closes session after an exception is thrown.
 		//Try to close any stray sessions caused by exceptions
-		GpnDataExportServiceSoapProxy soapProxy = new GpnDataExportServiceSoapProxy();
 		try {
 			BufferedReader	in = new BufferedReader(new FileReader("connection.lock"));
 			String str;
@@ -294,9 +293,19 @@ public class ScriptData {
 			sessiontoken = str;
 			}
 			in.close();
-			//FIX ME - this doesnt always close the session!
+			//FIX ME - this doesnt always close the session! - Check for timeout and retry.
 			log.info("Attempting to close stray session: " + sessiontoken);
-			soapProxy.closeDataFeed(sessiontoken);
+			GpnDataExportServiceSoapProxy soapProxy = new GpnDataExportServiceSoapProxy();
+			COpStatusData sessionObject = soapProxy.closeDataFeed(sessiontoken);
+			while (sessionObject.getEStatus().getValue() != "STATUS_SUCCESS"){
+				try {
+					Thread.sleep(30000);
+					sessionObject = soapProxy.closeDataFeed(sessiontoken);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		} catch (FileNotFoundException e2) {
 		
 			if (debug) log.warning("No session file found after exception");	
