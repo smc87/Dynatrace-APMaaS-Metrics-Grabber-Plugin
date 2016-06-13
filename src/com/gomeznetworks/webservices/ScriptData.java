@@ -304,7 +304,7 @@ public class ScriptData {
 			while (sessionObject.getEStatus().getValue() != "STATUS_SUCCESS" && failCount < 7){
 				log.warning("Closing Stray Session Failed");
 				log.warning(sessionObject.getEStatus().toString());
-				log.warning(sessionObject.getEStatus().getValue());
+				log.warning(sessionObject.getSErrorMessage());
 				try {
 					log.warning("Sleep 10sec to try and avoid slow network response");
 					Thread.sleep(10000);
