@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: APMaaS Script Metrics - Single Transactions
 Bundle-SymbolicName: com.compuware.APMaaS.scriptmetrics;singleton:=true
-Bundle-Version: 2.0.7
+Bundle-Version: 2.1.0
 Bundle-ClassPath: .,
  lib/activation.jar,
  lib/axis.jar,
