@@ -9,10 +9,12 @@ package com.compuware;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -71,67 +73,39 @@ public class APMaaSMetricsMonitor implements Monitor {
 		
 		boolean debug = env.getConfigBoolean("debug");
 		
-		
-		
-		
+	
 		//Check/create for lockfile, pause until lockfile is gone
 		File lockFile = new File("connection.lock");
-		Random rand = new Random();
-		log.info("Waiting For Lock File...");
-		//increase randomness
-		Random rand2 = new Random();
+		
+		//Check that lock file hasnt been sat there for ages. 
 		while (lockFile.exists()) {
-			
-			long dateDiff = new Date().getTime() - lockFile.lastModified();
-			// 4*60*1000 = 2 minutes
-			if (dateDiff >= 4*60*1000 && dateDiff <= 3000*60*1000) {
+				long dateDiff = new Date().getTime() - lockFile.lastModified();
+		// 4*60*1000 = 2 minutes
+		if (dateDiff >= 4*60*1000 && dateDiff <= 3000*60*1000) {
+			lockFile.delete();
+			log.warning("Deleted old lockFile - 4 minutes old!");
+			log.warning("lockfile modified at: " + lockFile.lastModified());
+			log.warning("current time: " + new Date().getTime());
+			log.warning("datediff: " + dateDiff);
+		}
+		}
+		log.info("ABOUT TO TRY LOCK");
+		//syncro file locking for thread safeness
+		synchronized (this) {
+			log.info("TRYING FOR LOCK");
+			if (lockFile.exists()) {
 				lockFile.delete();
-				log.warning("Deleted old lockFile - 4 minutes old!");
-				log.warning("lockfile modified at: " + lockFile.lastModified());
-				log.warning("current time: " + new Date().getTime());
-				log.warning("datediff: " + dateDiff);
+				log.info("DELETED LOCK FILE");
 			}
-			int sleepTime = 100 + rand2.nextInt(950);
-			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
-			Thread.sleep(sleepTime);
+			lockFile.createNewFile();
+			FileWriter lockWriter = new FileWriter(lockFile, true);
+			lockWriter.write(scriptName+"\r\n");		
+			lockWriter.close();
+			log.info("LOCK AQUIRED");
 		}
-		//FIXME - Convert to fileLocks
-		//Small extra randomisation to try and make sure we are the only one with a lock
-		int sleepyTime = 5 + rand.nextInt(450);
-		Thread.sleep(sleepyTime);
-		while (lockFile.exists()) {
-			
-			
-			long dateDiff = new Date().getTime() - lockFile.lastModified();
-			if (dateDiff >= 4*60*1000 && dateDiff <= 3000*60*1000) {
-				lockFile.delete();
-				log.warning("2nd check Deleted old lockFile - 4 minutes old!");
-				log.warning("2nd check lockfile modified at: " + lockFile.lastModified());
-				log.warning("2nd check current time: " + new Date().getTime());
-				log.warning("2nd check datediff: " + dateDiff);
-			}
-			int sleepTime = 100 + rand.nextInt(950);
-			if (debug) log.info("Connection Locked - Sleeping for " + sleepTime + " milliseconds");
-			Thread.sleep(sleepTime);
-		}
-		if (!(lockFile.exists())) {
-		lockFile.createNewFile();
-		//add script ID to lockfile. then check lockfile before calling out from scriptdata.java 
-		FileWriter lockWriter = new FileWriter(lockFile, true);
-		/* Remove this in favour of \r\n and only reading the first line with isMyLock()
-		if (lockFile.exists()) {
-			
-		    RandomAccessFile raf = new RandomAccessFile(lockFile, "rw");
-		    raf.setLength(0);
-		    raf.close();
-		}
-		*/
-		lockWriter.write(scriptName+"\r\n");		
-		lockWriter.close();
-		} else {
-			log.warning("Unexpected log file - exited");
-			return new Status(Status.StatusCode.ErrorInternal, "unexpected lockFile Existed");
-		}
+		
+
+		
 		log.info("Finished Waiting For Lock File");
 		
 		//SetUP Simple Proxy
@@ -182,7 +156,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 				if (debug) log.info("an error has occured");
 				if (isMyLock(scriptName)) {
 					if (debug) log.info("Its My Lock");
-					lockFile.delete();
+					//lockFile.delete();
 				} else {
 					log.warning("Attempted lockfile deletion - NOT MY LOCK");
 				}
@@ -233,7 +207,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 			}
 			if (isMyLock(scriptName)) {
 				if (debug) log.info("Its My Lock");
-				lockFile.delete();
+				//lockFile.delete();
 			} else {
 				log.warning("Attempted lockfile deletion - NOT MY LOCK");
 			}
@@ -243,7 +217,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 		//make sure we have the right transaction to delete the lock file.
 		if (isMyLock(scriptName)) {
 			if (debug) log.info("Its My Lock");
-			lockFile.delete();
+			//lockFile.delete();
 		} else {
 			log.warning("Attempted lockfile deletion - NOT MY LOCK");
 		}
