@@ -93,6 +93,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 		
 		//try lock
 		if (!getLock(scriptName)) {
+			log.warning("Unable to acquire lock");
 			return new Status(Status.StatusCode.ErrorInternal, "Could not acquire connection lock");			
 		}
 
