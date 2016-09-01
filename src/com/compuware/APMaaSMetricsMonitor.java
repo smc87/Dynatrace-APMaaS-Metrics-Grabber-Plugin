@@ -92,7 +92,9 @@ public class APMaaSMetricsMonitor implements Monitor {
 		}
 		
 		//try lock
-		getLock(scriptName);
+		if (!getLock(scriptName)) {
+			return new Status(Status.StatusCode.ErrorInternal, "Could not acquire connection lock");			
+		}
 
 		
 		log.info("Finished Waiting For Lock File");
@@ -183,20 +185,14 @@ public class APMaaSMetricsMonitor implements Monitor {
 						measure.setValue(script.missingData);
 				}	
 			}
-			if (isMyLock(scriptName)) {
-				if (debug) log.info("Its My Lock");
-				//lockFile.delete();
-				releaseLock(scriptName);
-			} else {
-				log.warning("Attempted lockfile deletion - NOT MY LOCK");
-			}
+			releaseLock(scriptName);
 			log.info("Completed Collection Run");
 			return new Status(Status.StatusCode.Success);
 		}
 		//make sure we have the right transaction to delete the lock file.
 		releaseLock(scriptName);		
 		log.info("Completed Collection Run - No Data");
-		return new Status(Status.StatusCode.ErrorInternal, "Possible Normal Failure - We fail when there is no new data to avoid a data point being created. Enable debug for verbose logs.");
+		return new Status(Status.StatusCode.ErrorInternal, "Normal Failure - We fail when there is no new data to avoid a data point being created. Enable debug for verbose logs.");
 	}
 
 
