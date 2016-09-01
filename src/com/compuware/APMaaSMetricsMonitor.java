@@ -204,12 +204,11 @@ public class APMaaSMetricsMonitor implements Monitor {
 	
 	private boolean getLock(String scriptName) throws IOException, InterruptedException {
 	File lockFile = new File("connection.lock");
-	log.info("ABOUT TO TRY LOCK");
 	//syncro file locking for thread safeness
 	int retry = 0;
 	synchronized (this) {
 		while (retry < 45) {
-		log.info("TRYING FOR LOCK");
+		log.info("ATTEMPTING LOCK");
 		if (!lockFile.exists()) {
 		lockFile.createNewFile();
 		FileWriter lockWriter = new FileWriter(lockFile, true);
@@ -233,12 +232,12 @@ public class APMaaSMetricsMonitor implements Monitor {
 	
 	private boolean releaseLock(String scriptName) throws IOException, InterruptedException {
 		File lockFile = new File("connection.lock");
-		log.info("ABOUT TO TRY LOCK");
 		int retry = 0;
 		synchronized (this) {
 			while (retry < 5) {
 		if (isMyLock(scriptName)) {
 			lockFile.delete();
+			log.info("Lock released");
 			return true;
 		}
 		retry++;
