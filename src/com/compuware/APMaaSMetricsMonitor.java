@@ -262,13 +262,13 @@ public class APMaaSMetricsMonitor implements Monitor {
 		str = readIn.readLine();
 		lockedScriptName = str;
 		readIn.close();
-		log.info("Calling Script Name: " + scriptName);
-		log.info("Locked Script Name: " + lockedScriptName);
+		log.fine("Calling Script Name: " + scriptName);
+		log.fine("Locked Script Name: " + lockedScriptName);
 		if (lockedScriptName.equals(scriptName)) {
-		log.info("MyLock is: True");
+		log.fine("MyLock is: True");
 			return true;
 		} else {
-		log.info("MyLock is: False");
+		log.fine("MyLock is: False");
 		return false;
 		}
 	}
