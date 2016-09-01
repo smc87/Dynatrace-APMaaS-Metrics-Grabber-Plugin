@@ -9,13 +9,9 @@ package com.compuware;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.Collection;
@@ -70,6 +66,13 @@ public class APMaaSMetricsMonitor implements Monitor {
 		String gomezUserName = env.getConfigString("gomezUserName");
 		String gomezPassword = env.getConfigPassword("gomezPassword");
 
+		boolean proxyOn = env.getConfigBoolean("proxyOn");
+		String proxyHost = env.getConfigString("proxyHost");
+		String proxyPort = env.getConfigString("proxyPort");
+		String nonProxyHosts = env.getConfigString("nonProxyHosts");
+		boolean proxyAuth = env.getConfigBoolean("proxyAuth");
+		String proxyUsername = env.getConfigString("proxyUsername");
+		String proxyPassword = env.getConfigPassword("proxyPassword");
 		
 		boolean debug = env.getConfigBoolean("debug");
 		
@@ -78,7 +81,6 @@ public class APMaaSMetricsMonitor implements Monitor {
 		File lockFile = new File("connection.lock");
 		
 		//Check that lock file hasnt been sat there for ages. 
-		while (lockFile.exists()) {
 				long dateDiff = new Date().getTime() - lockFile.lastModified();
 		// 4*60*1000 = 2 minutes
 		if (dateDiff >= 4*60*1000 && dateDiff <= 3000*60*1000) {
@@ -88,34 +90,15 @@ public class APMaaSMetricsMonitor implements Monitor {
 			log.warning("current time: " + new Date().getTime());
 			log.warning("datediff: " + dateDiff);
 		}
-		}
-		log.info("ABOUT TO TRY LOCK");
-		//syncro file locking for thread safeness
-		synchronized (this) {
-			log.info("TRYING FOR LOCK");
-			if (lockFile.exists()) {
-				lockFile.delete();
-				log.info("DELETED LOCK FILE");
-			}
-			lockFile.createNewFile();
-			FileWriter lockWriter = new FileWriter(lockFile, true);
-			lockWriter.write(scriptName+"\r\n");		
-			lockWriter.close();
-			log.info("LOCK AQUIRED");
-		}
 		
+		//try lock
+		getLock(scriptName);
 
 		
 		log.info("Finished Waiting For Lock File");
 		
 		//SetUP Simple Proxy
-		boolean proxyOn = env.getConfigBoolean("proxyOn");
-		String proxyHost = env.getConfigString("proxyHost");
-		String proxyPort = env.getConfigString("proxyPort");
-		String nonProxyHosts = env.getConfigString("nonProxyHosts");
-		boolean proxyAuth = env.getConfigBoolean("proxyAuth");
-		String proxyUsername = env.getConfigString("proxyUsername");
-		String proxyPassword = env.getConfigPassword("proxyPassword");
+
 		
 		if (proxyOn) {					
 		System.setProperty("http.proxyHost", proxyHost);
@@ -154,12 +137,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 
 			if (! manage.createConfigXml()){
 				if (debug) log.info("an error has occured");
-				if (isMyLock(scriptName)) {
-					if (debug) log.info("Its My Lock");
-					//lockFile.delete();
-				} else {
-					log.warning("Attempted lockfile deletion - NOT MY LOCK");
-				}
+				releaseLock(scriptName);
 				return new Status(Status.StatusCode.ErrorInternal, "An Error Occurred. Could not create XML File " + f);
 			}
 
@@ -208,6 +186,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 			if (isMyLock(scriptName)) {
 				if (debug) log.info("Its My Lock");
 				//lockFile.delete();
+				releaseLock(scriptName);
 			} else {
 				log.warning("Attempted lockfile deletion - NOT MY LOCK");
 			}
@@ -215,23 +194,66 @@ public class APMaaSMetricsMonitor implements Monitor {
 			return new Status(Status.StatusCode.Success);
 		}
 		//make sure we have the right transaction to delete the lock file.
-		if (isMyLock(scriptName)) {
-			if (debug) log.info("Its My Lock");
-			//lockFile.delete();
-		} else {
-			log.warning("Attempted lockfile deletion - NOT MY LOCK");
-		}
-		
+		releaseLock(scriptName);		
 		log.info("Completed Collection Run - No Data");
 		return new Status(Status.StatusCode.ErrorInternal, "Possible Normal Failure - We fail when there is no new data to avoid a data point being created. Enable debug for verbose logs.");
 	}
-
 
 
 	@Override
 	public void teardown(MonitorEnvironment env) throws Exception {
 		// empty
 	}
+	
+	private boolean getLock(String scriptName) throws IOException, InterruptedException {
+	File lockFile = new File("connection.lock");
+	log.info("ABOUT TO TRY LOCK");
+	//syncro file locking for thread safeness
+	int retry = 0;
+	synchronized (this) {
+		while (retry < 45) {
+		log.info("TRYING FOR LOCK");
+		if (!lockFile.exists()) {
+		lockFile.createNewFile();
+		FileWriter lockWriter = new FileWriter(lockFile, true);
+		lockWriter.write(scriptName+"\r\n");		
+		lockWriter.close();
+		if (isMyLock(scriptName)) {
+		log.info("LOCK AQUIRED");
+		return true;
+		}
+		}
+		retry++;
+		Random rand = new Random();
+		int sleepTime = 950 + rand.nextInt(1650);
+		Thread.sleep(sleepTime);
+		} //End Of Loop
+		}  
+	log.info("Unable to aquire lock");
+	return false;
+	}
+	
+	
+	private boolean releaseLock(String scriptName) throws IOException, InterruptedException {
+		File lockFile = new File("connection.lock");
+		log.info("ABOUT TO TRY LOCK");
+		int retry = 0;
+		synchronized (this) {
+			while (retry < 5) {
+		if (isMyLock(scriptName)) {
+			lockFile.delete();
+			return true;
+		}
+		retry++;
+		Random rand = new Random();
+		int sleepTime = 950 + rand.nextInt(1650);
+		Thread.sleep(sleepTime);
+		}
+		}
+		return false;
+		
+	}
+	
 	
 	private boolean isMyLock(String scriptName) throws IOException {
 		BufferedReader	readIn = new BufferedReader(new FileReader("connection.lock"));
