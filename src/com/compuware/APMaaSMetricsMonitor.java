@@ -206,6 +206,7 @@ public class APMaaSMetricsMonitor implements Monitor {
 	File lockFile = new File("connection.lock");
 	//syncro file locking for thread safeness
 	int retry = 0;
+	try {
 	synchronized (this) {
 		while (retry < 45) {
 		log.info("ATTEMPTING LOCK");
@@ -227,6 +228,12 @@ public class APMaaSMetricsMonitor implements Monitor {
 		}  
 	log.info("Unable to aquire lock");
 	return false;
+	} catch (InterruptedException e) {
+		log.severe("Thread interrupted!!");
+	  Thread.currentThread().interrupt();
+	  return(false);
+	}
+		  // code for stopping current task so thread stops
 	}
 	
 	

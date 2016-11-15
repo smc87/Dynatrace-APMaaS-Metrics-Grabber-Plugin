@@ -333,7 +333,7 @@ private boolean processedRecently(File transactionFile) {
 	if (gomezType.contains("PRIVATEPEER")) {
 	long dateDiff = new Date().getTime() - transactionFile.lastModified();
 	if (dateDiff >= 20*60*1000) {
-		//Last transaction processed over 15minutes ago
+		//Last transaction processed over 20 minutes ago
 		log.warning("Last transaction processed over 20minutes ago - No new data returned from API recently");
 		return false;
 	}
